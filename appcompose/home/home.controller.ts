@@ -66,16 +66,17 @@ module Controllers {
 
 		setItemBody() {
 			var that = this;
-			var uri = helpers.UriBuilder.buildFromObject("estimates", "1234-1234-1234-1234", this.vm);
+			var uri = helpers.UriBuilder.buildFromObject("est", "1234-1234-1234-1234", this.vm);
+			var embedString = "";
 
 			this.item.body.getTypeAsync(
 				function(result) {
 					if (result.status !== Office.AsyncResultStatus.Failed) {
 						if (result.value === Office.MailboxEnums.BodyType.Html) {
 							// Body is HTML
-							var x = '<a href="' + uri + '">' + uri + '</a>';
-							that.item.body.setSelectedDataAsync(
-								x,
+							embedString = '<a href="' + uri + '">' + uri + '</a>';
+							that.item.body.setSelectedDataAsync(						
+								embedString,
 								{ coercionType: Office.CoercionType.Html },
 								function(asyncResult) {
 									var x = asyncResult;
