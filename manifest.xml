@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="MailApp">
+  <Id>0ec1415d-8e2d-48c1-b97a-7bb776e26c64</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>MikeO</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="OutlookAddin_DataEntryEmbed"/>
+  <Description DefaultValue="Descriptionm goes here"/>
+  <!--<HighResolutionIconUrl DefaultValue="[Icon URL]"/>-->
+  <SupportUrl DefaultValue="http://localhost"/>
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="MailBox" MinVersion="1.1"/>
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://localhost:8443/appcompose/home/home.html"/>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
+  <DisableEntityHighlighting>false</DisableEntityHighlighting>
+</OfficeApp>
