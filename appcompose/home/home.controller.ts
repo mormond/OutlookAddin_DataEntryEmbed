@@ -10,7 +10,7 @@ module Controllers {
 
 	export class HomeController {
 		vm: ViewModels.HomeViewModel;
-		item: any;
+		item: Office.Types.MessageCompose;
 
 		constructor() {
 			this.vm = new ViewModels.HomeViewModel();
@@ -30,6 +30,7 @@ module Controllers {
 				jQuery('#submit').click((evt: JQueryEventObject) => { hc.submitForm(evt) });
 
 				hc.clearForm(null);
+				hc.item = Office.cast.item.toMessageCompose(Office.context.mailbox.item);
 			});
 		}
 
@@ -60,7 +61,7 @@ module Controllers {
 			this.vm.fromEmailAddress = jQuery('#emailAddress').val();
 			this.vm.workSummary = jQuery('#workSummary').val();
 
-			Office.context.mailbox.item.to.getAsync(
+			this.item.to.getAsync(
 				function(asyncResult) {
 					that.vm.toEmailAddresses = asyncResult.value
 						.map(function(x) {
@@ -72,8 +73,6 @@ module Controllers {
 
 		submitForm(evt: JQueryEventObject) {
 			this.bindViewToModel();
-
-			this.item = Office.context.mailbox.item;
 			this.setItemBody();
 		}
 
@@ -87,7 +86,7 @@ module Controllers {
 					if (result.status !== Office.AsyncResultStatus.Failed) {
 						if (result.value === Office.MailboxEnums.BodyType.Html) {
 							// Body is HTML
-							embedString = '<a href="' + uri + '">' + "This is the link" + '</a>';
+							embedString = '<a href="' + uri + '">' + uri + '</a>';
 							that.item.body.setSelectedDataAsync(
 								embedString,
 								{ coercionType: Office.CoercionType.Html },
