@@ -28,11 +28,14 @@ module Controllers {
 
 				jQuery('#clear').click((evt: JQueryEventObject) => { hc.clearForm(evt) });
 				jQuery('#submit').click((evt: JQueryEventObject) => { hc.submitForm(evt) });
+
+				hc.clearForm(null);
 			});
 		}
 
 		clearForm(evt: JQueryEventObject) {
 			this.vm.initialise();
+			this.vm.fromEmailAddress = Office.context.mailbox.userProfile.emailAddress;
 			this.bindModelToView();
 		}
 
@@ -42,18 +45,28 @@ module Controllers {
 			jQuery('#address').val(this.vm.address);
 			jQuery('#postcode').val(this.vm.postcode);
 			jQuery('#telNumber').val(this.vm.telNumber);
-			jQuery('#emailAddress').val(this.vm.emailAddress);
+			jQuery('#emailAddress').val(this.vm.fromEmailAddress);
 			jQuery('#workSummary').val(this.vm.workSummary);
 		}
 
 		bindViewToModel() {
+			var that = this;
+
 			this.vm.title = parseInt(jQuery('#title').val());
 			this.vm.name = jQuery('#name').val();
 			this.vm.address = jQuery('#address').val();
 			this.vm.postcode = jQuery('#postcode').val();
 			this.vm.telNumber = jQuery('#telNumber').val();
-			this.vm.emailAddress = jQuery('#emailAddress').val();
+			this.vm.fromEmailAddress = jQuery('#emailAddress').val();
 			this.vm.workSummary = jQuery('#workSummary').val();
+
+			Office.context.mailbox.item.to.getAsync(
+				function(asyncResult) {
+					that.vm.toEmailAddresses = asyncResult.value
+						.map(function(x) {
+							return x.emailAddress;
+						});
+				});
 		}
 
 
@@ -74,13 +87,13 @@ module Controllers {
 					if (result.status !== Office.AsyncResultStatus.Failed) {
 						if (result.value === Office.MailboxEnums.BodyType.Html) {
 							// Body is HTML
-							embedString = '<a href="' + uri + '">' + uri + '</a>';
-							that.item.body.setSelectedDataAsync(						
+							embedString = '<a href="' + uri + '">' + "This is the link" + '</a>';
+							that.item.body.setSelectedDataAsync(
 								embedString,
 								{ coercionType: Office.CoercionType.Html },
 								function(asyncResult) {
 									var x = asyncResult;
-								 }
+								}
 							)
 						} else {
 							// Body is text

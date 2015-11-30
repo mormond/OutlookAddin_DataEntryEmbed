@@ -15,7 +15,8 @@ module ViewModels {
 		address: string;
 		postcode: string;
 		telNumber: string;
-		emailAddress: string;
+		fromEmailAddress: string;
+		toEmailAddresses: string[];
 		workSummary: string;
 
 		constructor() {
@@ -28,7 +29,8 @@ module ViewModels {
 			this.address = "";
 			this.postcode = "";
 			this.telNumber = "";
-			this.emailAddress = "";
+			this.fromEmailAddress = "";
+			this.toEmailAddresses = [];
 			this.workSummary = "";
 		}
 	}
