@@ -9,7 +9,7 @@ module helpers {
 
 	export class UriBuilder {
 
-		static buildFromObject(protocol: string, guid: string, obj: any) : string {
+		static buildFromObject(protocol: string, action: string, guid: string, obj: any) : string {
 
 			var keyValPairs = UriBuilder.propsToKeyValuePairs(obj);
 			var paramString = "";
@@ -26,17 +26,19 @@ module helpers {
 			}
 
 			var Uri = protocol +
-				"://Action/" +
+				"://" +
+				action +
+				"/" +
 				guid +
 				paramString;
 				
 				return Uri;
 		}
 
-		static propsToKeyValuePairs(obj: any) : KeyValuePair[]{
+		static propsToKeyValuePairs(obj: any) : KeyValuePair[] {
 
 			return Object.keys(obj)
-				.map(function(x) {
+				.map((x) => {
 					var rObj = new KeyValuePair();
 					rObj.key = x;
 					rObj.value = obj[x];

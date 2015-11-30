@@ -10,16 +10,13 @@ module Controllers {
 
 	export class HomeController {
 		vm: ViewModels.HomeViewModel;
-		messageItem: Office.Types.MessageCompose;
-		appointmentItem: Office.Types.AppointmentCompose;
+		item: Office.Types.ItemCompose;
 
 		constructor() {
 			this.vm = new ViewModels.HomeViewModel();
 		}
 
 		initializeHandler(reason: Office.InitializationReason) {
-			var item: Office.Types.ItemCompose;
-
 			jQuery(document).ready(() => {
 				app.initialize();
 
@@ -30,10 +27,8 @@ module Controllers {
 				jQuery('#clear').click((evt: JQueryEventObject) => { hc.clearForm(evt) });
 				jQuery('#submit').click((evt: JQueryEventObject) => { hc.submitForm(evt) });
 
+				hc.item = Office.cast.item.toItemCompose(Office.context.mailbox.item);
 				hc.clearForm(null);
-				item = Office.cast.item.toItemCompose(Office.context.mailbox.item);
-				hc.messageItem = Office.cast.item.toMessageCompose(item);
-				hc.appointmentItem = Office.cast.item.toAppointmentCompose(item);
 			});
 		}
 
@@ -53,7 +48,7 @@ module Controllers {
 			jQuery('#workSummary').val(this.vm.workSummary);
 		}
 
-		bindViewToModel() {
+		bindViewToModel(callback: () => void) {
 			var that = this;
 
 			this.vm.title = parseInt(jQuery('#title').val());
@@ -64,57 +59,60 @@ module Controllers {
 			this.vm.fromEmailAddress = jQuery('#emailAddress').val();
 			this.vm.workSummary = jQuery('#workSummary').val();
 
-			if (this.messageItem.itemType === Office.MailboxEnums.ItemType.Message) {
-				this.messageItem.to.getAsync(
-					function(asyncResult: Office.AsyncResult) {
+			if (this.item.itemType === Office.MailboxEnums.ItemType.Message) {
+				var message = Office.cast.item.toMessageCompose(this.item);
+				message.to.getAsync(
+					(asyncResult: Office.AsyncResult) => {
 						that.vm.toEmailAddresses = asyncResult.value
 							.map(function(x: Office.EmailAddressDetails) {
 								return x.emailAddress;
 							});
+							callback.apply(this);
 					});
 			}
 			else {
-				this.appointmentItem.requiredAttendees.getAsync(
-					function(asyncResult: Office.AsyncResult) {
+				var appoimtment = Office.cast.item.toAppointmentCompose(this.item);
+				appoimtment.requiredAttendees.getAsync(
+					(asyncResult: Office.AsyncResult) => {
 						that.vm.toEmailAddresses = asyncResult.value
 							.map(function(x: Office.EmailAddressDetails) {
 								return x.emailAddress;
 							});
+							callback.apply(this);
 					});
 			}
 		}
 
 		submitForm(evt: JQueryEventObject) {
-			this.bindViewToModel();
-			this.setItemBody();
+			this.bindViewToModel(this.setItemBody);
 		}
 
 		setItemBody() {
 			var that = this;
 			var protocol = "est";
+			var action = "Action";
 			var guid = "1234-1234-1234-1234";
-			var uri = helpers.UriBuilder.buildFromObject(protocol, guid, this.vm);
+			var uri = helpers.UriBuilder.buildFromObject(protocol, action, guid, this.vm);
 			var embedString = "";
 
-			this.messageItem.body.getTypeAsync(
-				function(asyncResult: Office.AsyncResult) {
+			this.item.body.getTypeAsync((asyncResult: Office.AsyncResult) => {
 					if (asyncResult.status !== Office.AsyncResultStatus.Failed) {
 						if (asyncResult.value === Office.MailboxEnums.BodyType.Html) {
 							// Body is HTML
 							embedString = '<a href="' + uri + '">' + uri + '</a>';
-							that.messageItem.body.setSelectedDataAsync(
+							that.item.body.setSelectedDataAsync(
 								embedString,
 								{ coercionType: Office.CoercionType.Html },
-								function(asyncResult) {
+								(asyncResult : Office.AsyncResult) => {
 									var x = asyncResult;
 								}
 							)
 						} else {
 							// Body is text
-							that.messageItem.body.setSelectedDataAsync(
+							that.item.body.setSelectedDataAsync(
 								uri,
 								{ coercionType: Office.CoercionType.Text },
-								function(asyncResult: Office.AsyncResult) { }
+								(asyncResult: Office.AsyncResult) => { }
 							)
 						}
 					}
