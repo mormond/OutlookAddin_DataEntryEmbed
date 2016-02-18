@@ -5,6 +5,7 @@
 
 /catalog
 
-/typings
+/typings/jquery
+/typings/office-js
 
 /appcompose/home/built
